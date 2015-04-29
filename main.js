@@ -17,12 +17,16 @@ var timeout_limit = 10000;
 var oSocket;
 console.log('ZweiteHorizont System Level 5 functions initialization completed!');
 //level 4 function.
-
 var api = {
+    utils: utils,
     connection_manager: require('./api/ConnectionManager.js'),
+    communication_manager: require('./api/CommunicationManager.js'),
     system_manager: require('./api/SystemManager.js'),
     end: 0
 }
+api.connection_manager.config_system(api);
+api.communication_manager.config_system(api);
+api.system_manager.config_system(api);
 
 var MainServer = net.createServer(function (socket) {
 
@@ -69,16 +73,12 @@ MainServer.listen(listen_port, function () {
 
 //直接连接socket调度
 function onUserConnected(oSocket) {
-    //ConnectionService.AddConnectionToService(oSocket);
-    oSocket.sendObject({msg: 'Welcome to ZweiteHorizont test server.'});
+    oSocket.sendObject({msg: 'Welcome to ZweiteHorizont test server ,please check your accree token.'});
 }
 
 //直接断开socket调度
 function onUserDisconnected(oSocket) {
     api.connection_manager.remove_connection_from_server(oSocket);
-    //ConnectionService.RemoveConnectionFromService(oSocket);
-    console.log('A client disconnected. now connections:'+  api.connection_manager.get_connection_count());
-
 }
 
 /**
@@ -88,20 +88,19 @@ function onUserDisconnected(oSocket) {
  * @param obj
  */
 function onDataIncoming(obj) {
-    if (isValidDataObject(obj)) {
-        if (obj.close == 1) {
-            obj.connection.closeConnection();
-            return;
-        }
-        api[obj.module][obj.action](obj);
+    // if (isValidDataObject(obj)) {
+    if (obj.close == 1) {
+        obj.connection.closeConnection();
         return;
-        try {
-            api[obj.module][obj.action](obj);
-        } catch (e) {
-            console.log('onDataIncoming:can not find', obj.module, ':', obj.action,e);
-            return;
-        }
     }
+    try {
+        api[obj.module][obj.action](obj);
+    } catch (e) {
+        console.log('onDataIncoming:can not find api[' + obj.module + '][' + obj.action + ']');
+        console.log(e);
+        return;
+    }
+    // }
 }
 /**
  * 通过验证包内是否函数3个属性来确定这个包是否有效.

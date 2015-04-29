@@ -16,7 +16,7 @@ var self = {
         var robj = system_api.utils.get_return_object(obj);
         robj.data = obj.data
         for (var i = 0; i < pool.length; i++) {
-            pool[i].socket.send_object(robj)
+            pool[i].send_object(robj);
         }
         console.log('CommunicationManager:', obj.client_id, 'has boardcast a message');
     },

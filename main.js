@@ -24,6 +24,7 @@ var api = {
     system_manager: require('./api/SystemManager.js'),
     end: 0
 }
+
 api.connection_manager.config_system(api);
 api.communication_manager.config_system(api);
 api.system_manager.config_system(api);
@@ -82,7 +83,7 @@ function onDataIncoming(obj) {
     try {
         api[obj.module][obj.action](obj);
     } catch (e) {
-        console.log('onDataIncoming:can not find api[' + obj.module + '][' + obj.action + ']');
+        console.log('onDataIncoming:[' + obj.module + '][' + obj.action + '] error');
         console.log(e);
         return;
     }

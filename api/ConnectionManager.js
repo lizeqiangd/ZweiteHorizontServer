@@ -1,8 +1,19 @@
 /**
  * This is a class of ZweiteHorizont Server.
  * ConnectionManager
+ * ä¼ å…¥è¿›æ¥çš„æ•°æ®
+ * data{
+ *  connection:Socket
+ *  //è¿™é‡Œä¼šconnectionåŠ å…¥client_idå’Œconnected_time 2ä¸ªå±æ€§.
+ * }
+ * ä¿å­˜åˆ°è¿æ¥æ± çš„æ•°æ®ä¸ºä¸€ä¸ªæ ‡å‡†çš„ObjectSocketçš„åŸå‹å¢åŠ 2ä¸ªå±æ€§
+ * oSocket{
+ *  client_id
+ *  connected_time
+ *  ....å…¶ä»–connectionæ–¹æ³•å’Œå±æ€§,ç”¨äºéšæ—¶è°ƒç”¨. *
+ * }
  */
-
+var connection_hash_pool = {};
 var connection_pool = [];
 var system_api = {};
 var self = {
@@ -10,37 +21,41 @@ var self = {
         system_api = obj
     },
     /**
-     * »ñÈ¡Á¬½Ó³Ø
+     * get connection pool array.
      */
     get_connection_pool: function () {
-             return connection_pool;
+        return connection_pool;
     },
     /**
-     * ÑéÖ¤Éí·İ.
+     * to access the system . server need an vaild token. which is not ready yet.
      * @param obj
      */
     access_zweitehorizont_server: function (obj) {
         if (system_api.utils.check_access_key_vaild(obj.access_key)) {
-            obj.connection.client_id=system_api.utils.get_unique_id();
-            obj.connection.connected_time=system_api.utils.get_server_time()
+            obj.connection.client_id = system_api.utils.get_unique_id();
+            obj.connection.connected_time = system_api.utils.get_server_time();
+            connection_hash_pool[obj.connection.client_id]=obj.connection;
             connection_pool.push(obj.connection)
-            obj.connection.send_object({client_id:obj.connection.client_id});
-            console.log('ConnectionManager:new user access success,',  'client_id:', obj.connection.client_id);
+            obj.connection.send_object({client_id: obj.connection.client_id});
+            console.log('ConnectionManager:new user access success,', 'client_id:', obj.connection.client_id);
         } else {
             obj.connection.send_object({msg: 'access deny'});
         }
     },
     /**
-     * ÒÆ³ıÁ¬½Ó
+     * remove an connection from server.
      * @param socket
      */
     remove_connection_from_server: function (socket) {
         var remove_index = this.find_connection(socket, 'socket', 'index');
-        connection_pool.splice(remove_index,1);
+        var remove_client_id=connection_pool[remove_index].client_id
+
+        connection_pool.splice(remove_index, 1);
+        delete connection_hash_pool[remove_client_id];
         console.log('ConnectionManager:user leave ,now online:', connection_pool.length);
     },
     /**
-     * Ñ°ÕÒÁ¬½Ó
+     * find an connection instance  by input and output
      * @param obj
      * @param input
      * @param output
@@ -57,12 +72,13 @@ var self = {
                 }
                 break;
             case 'client_id':
-                for (i; i < connection_pool.length; i++) {
-                    if (connection_pool[i].client_id == obj) {
-                        find_obj = connection_pool[i];
-                        break;
-                    }
-                }
+                find_obj=connection_hash_pool[input];
+                //for (i; i < connection_pool.length; i++) {
+                //    if (connection_pool[i].client_id == obj) {
+                //        find_obj = connection_pool[i];
+                //        break;
+                //    }
+                //}
                 break;
             case 'socket':
                 for (i; i < connection_pool.length; i++) {
@@ -78,6 +94,10 @@ var self = {
                     break;
                 }
         }
+        if(!find_obj){
+            return false;
+        }
+
         output_switch:switch (output) {
             case 'index':
                 return i;
@@ -90,7 +110,7 @@ var self = {
         }
     },
     /**
-     * »ñÈ¡Á¬½Ó×ÜÊı
+     * return the length of connection pool array.
      * @returns {Number}
      */
     get_connection_count: function () {

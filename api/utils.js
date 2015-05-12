@@ -41,11 +41,11 @@ var self = {
     //返回用户数据
     get_return_object: function (c2sobj) {
         return {
-            fingerprint: c2sobj.fingerprint,
-            client_id: c2sobj.client_id,
+            fingerprint: c2sobj.fingerprint+'',
+            client_id: c2sobj.client_id+'',
             timestamp: self.get_server_time(),
-            module: c2sobj.module,
-            action: c2sobj.action,
+            module: c2sobj.module+'',
+            action: c2sobj.action+'',
             data: {}
         }
     },

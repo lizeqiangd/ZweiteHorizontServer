@@ -72,7 +72,7 @@ MainServer.listen(listen_port, function () {
 /**
  * obj为发送过来的整个obj包
  * obj.connection 为发这个包的oSocket
- * oSocket.sendObject({})
+ * obj.connection.sendObject({})
  * @param obj
  */
 function onDataIncoming(obj) {

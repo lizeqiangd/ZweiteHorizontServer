@@ -234,5 +234,4 @@ function check_client_id_in_channel(client_id, channel_id) {
     }
     return false;
 }
-
 module.exports = self

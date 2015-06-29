@@ -13,15 +13,25 @@ var utils = require('./utils.js');
  * @param obj
  */
 function class_channel_instance(obj) {
+    //聊天平道id
     var channel_id = 0;
+    //创建者id
     var creator_uid = 0;
+    //创建者名字
     var creator_name = '';
+    //聊天频道id
     var channel_name = '';
+    //聊天频道安全等级
     var channel_secure_level = '';
+    //频道类型
     var channel_type = '';
+    //频道用户上线
     var channel_user_limit = '';
+    //频道管理员
     var channel_administrator = '';
+    //频道详细信息
     var channel_description = '';
+    //频道 连接者池.
     var connection_pool = [];
     if (obj) {
         this.creator_uid = obj.uid + 0;
